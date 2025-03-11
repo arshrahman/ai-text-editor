@@ -11,7 +11,7 @@ impl Config {
     pub fn from_env() -> AppResult<Self> {
         dotenvy::dotenv().map_err(|e| AppError::Environment(format!("Failed to load .env file: {}", e)))?;
 
-        let server_address = "127.0.0.1:7878".to_string();
+        let server_address = "0.0.0.0:7878".to_string();
 
         let gemini_api_key = env::var("GEMINI_API_KEY")
             .map_err(|_| AppError::Environment("GEMINI_API_KEY not found in environment".to_string()))?;
