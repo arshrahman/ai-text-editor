@@ -1,133 +1,45 @@
+mod api;
+mod config;
+mod error;
+mod models;
+mod services;
+
+use api::handle_ai_request;
 use axum::{
-  extract::State,
-  http::StatusCode,
-  routing::{get, post},
-  Json, Router,
+    routing::{get, post},
+    Router,
 };
-use reqwest;
-use serde::{Deserialize, Serialize};
-use serde_json::json;
+use config::Config;
+use error::AppResult;
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
 
-
-// Added missing derive macros for request struct
-#[derive(Debug, Deserialize, Serialize)]
-struct AskAIRequest {
-    content: String,
-    command: String,
-}
-
 #[tokio::main]
-async fn main() {
-  // Load environment variables first
-  dotenvy::dotenv().expect("Unable to access .env file");
-  
-  // Read environment variables
-  let gemini_api_key: String = std::env::var("GEMINI_API_KEY").expect("API key not found");
+async fn main() -> AppResult<()> {
+    // Initialize configuration from environment
+    let config = Config::from_env()?;
 
-  // Create TCP listener
-  let listener = TcpListener::bind("0.0.0.0:7878")
-    .await
-    .expect("Could not create tcp listener");
-
-  println!("listening on {}", listener.local_addr().unwrap());
-
-  // Create app state to pass the API key
-  let app_state = AppState {
-    gemini_api_key,
-  };
-
-  let app = Router::new()
-    .route("/", get(|| async { "Hello world" }))
-    .route("/ai/action", post(ask_ai))
-    .with_state(app_state)
-    .layer(CorsLayer::permissive())
-    .layer(TraceLayer::new_for_http());
-
-  //serve the application
-  axum::serve(listener, app)
-    .await
-    .expect("Error serving application");
-}
-
-// Added app state struct to properly pass API key
-#[derive(Clone)]
-struct AppState {
-    gemini_api_key: String,
-}
-
-async fn ask_ai(
-  State(state): State<AppState>,
-  Json(task): Json<AskAIRequest>,
-) -> Result<(StatusCode, Json<serde_json::Value>), (StatusCode, String)> {
-    let client = reqwest::Client::new();
-
-    let request_body = json!({
-        "system_instruction": {
-            "parts": {
-                "text": format!("{} the given text and only output the modified text. Do not output anything else", task.command),
-            }
-        },
-        "contents": [{
-            "parts": [{
-                "text": task.content
-            }]
-        }],
-        "generationConfig": {
-            "temperature": 0.7,
-            "topK": 1,
-            "topP": 1,
-            "maxOutputTokens": 2048,
-        }
-    });
-
-    // Use header() and body() instead of json()
-    let response = client
-        .post(format!(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={}",
-            state.gemini_api_key
-        ))
-        .header("Content-Type", "application/json")
-        .body(serde_json::to_string(&request_body).map_err(|e| {
-            (StatusCode::INTERNAL_SERVER_ERROR, 
-             format!("Failed to serialize request body: {}", e))
-        })?)
-        .send()
+    // Create TCP listener
+    let listener = TcpListener::bind(&config.server_address)
         .await
-        .map_err(|e| {
-            (StatusCode::INTERNAL_SERVER_ERROR,
-             format!("Failed to send request to Gemini API: {}", e))
-        })?;
+        .map_err(|e| error::AppError::Server(format!("Could not create tcp listener: {}", e)))?;
 
-    if !response.status().is_success() {
-        return Err((StatusCode::BAD_GATEWAY,
-            format!("Gemini API returned error status: {}", response.status())));
-    }
+    println!("listening on {}", listener.local_addr().unwrap());
 
-    let response_data = response.json::<serde_json::Value>().await
-        .map_err(|e| {
-            (StatusCode::INTERNAL_SERVER_ERROR,
-             format!("Failed to parse Gemini API response: {}", e))
-        })?;
+    let app = Router::new()
+        .route("/", get(|| async { "Hello world" }))
+        .route("/ai/action", post(handle_ai_request))
+        .with_state(config)
+        .layer(CorsLayer::permissive())
+        .layer(TraceLayer::new_for_http());
 
-    let generated_text = response_data
-        .get("candidates")
-        .and_then(|candidates| candidates.get(0))
-        .and_then(|candidate| candidate.get("content"))
-        .and_then(|content| content.get("parts"))
-        .and_then(|parts| parts.get(0))
-        .and_then(|part| part.get("text"))
-        .and_then(|text| text.as_str())
-        .ok_or_else(|| {
-            (StatusCode::INTERNAL_SERVER_ERROR,
-             "Invalid response structure from Gemini API".to_string())
-        })?;
+    println!("Server started successfully");
 
-    // Return the full response for more flexibility
-    Ok((StatusCode::OK, Json(json!({
-        "result": generated_text,
-        "command": task.command
-    }))))
+    // Serve the application
+    axum::serve(listener, app)
+        .await
+        .map_err(|e| error::AppError::Server(format!("Error serving application: {}", e)))?;
+
+    Ok(())
 }
