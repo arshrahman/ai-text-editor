@@ -24,7 +24,7 @@ export default function Editor() {
   const handleAskAI = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://127.0.0.1:7878/ai/action', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai/action`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

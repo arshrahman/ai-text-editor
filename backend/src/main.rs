@@ -25,11 +25,10 @@ async fn main() {
   dotenvy::dotenv().expect("Unable to access .env file");
   
   // Read environment variables
-  let server_address: String = std::env::var("SERVER_ADDRESS").unwrap_or("127.0.0.1:3000".to_owned());
   let gemini_api_key: String = std::env::var("GEMINI_API_KEY").expect("API key not found");
 
   // Create TCP listener
-  let listener = TcpListener::bind(server_address)
+  let listener = TcpListener::bind("0.0.0.0:7878")
     .await
     .expect("Could not create tcp listener");
 

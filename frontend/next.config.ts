@@ -1,16 +1,8 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const config = {
+  output: 'standalone',
   reactStrictMode: false,
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://127.0.0.1:7878/:path*',
-      },
-    ];
-  },
+  swcMinify: true,
 };
 
-export default nextConfig;
+export default config;

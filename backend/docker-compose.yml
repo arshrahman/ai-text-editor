@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  api-service:
+    build:
+      context: .
+      args:
+        DOTENV_PRIVATE_KEY: 68272d549c76892ee19273bb298ad7058eedd6f7e1eb9a3bcc284e9584591bcc
+    ports:
+      - "7878:7878"
+    restart: unless-stopped
