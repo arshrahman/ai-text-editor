@@ -43,7 +43,7 @@
 #   Principle of least privilege              - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
 
 
-name: Build and Deploy to Cloud Run
+name: Backend - Build and Deploy to Cloud Run
 
 on:
   push:
@@ -95,7 +95,7 @@ jobs:
 
       - name: Build and Push Container
         run: |-
-          docker build --build-arg ENV_KEY=${{ env.DOTENV_PRIVATE_KEY }} -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}" ./
+          docker build --build-arg ENV_KEY=${{ env.DOTENV_PRIVATE_KEY }} -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}" ./backend/
           docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}"
 
       - name: Deploy to Cloud Run
