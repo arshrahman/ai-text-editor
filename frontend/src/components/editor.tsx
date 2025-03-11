@@ -1,6 +1,5 @@
-"use client"; // this registers <Editor> as a Client Component
+"use client";
 import "@blocknote/core/fonts/inter.css";
-import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { Button } from "@/components/ui/button";
@@ -11,69 +10,107 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useEditor } from "@/hooks/useEditor";
+import { Command } from "@/services/api";
+import { FormattingToolbarController, FormattingToolbar, BlockTypeSelect, FileCaptionButton, FileReplaceButton, BasicTextStyleButton, TextAlignButton, ColorStyleButton, NestBlockButton, UnnestBlockButton, CreateLinkButton } from "@blocknote/react";
+import { AiDropdown } from "./ui/ai-dropdown";
 
 // Our <Editor> component we can reuse later
 export default function Editor() {
-  // Creates a new editor instance.
-  const editor = useCreateBlockNote();
-  const [markdown, setMarkdown] = useState<string>("");
-  const [operation, setOperation] = useState("Summarize");
-  const [loading, setLoading] = useState(false);
+  const {
+    editor,
+    operation,
+    loading,
+    error,
+    setOperation,
+    processContent
+  } = useEditor();
 
-  const handleAskAI = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai/action`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: markdown,
-          command: operation,
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to process text');
-      }
-
-      // Update editor content with the result
-      const blocks = await editor.tryParseMarkdownToBlocks(data.result);
-      editor.replaceBlocks(editor.document, blocks);
-      
-    } catch (error) {
-      console.error('Error processing text:', error);
-      // You might want to add proper error handling here
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onChange = async () => {
-    // Converts the editor's contents from Block objects to Markdown and store to state.
-    const markdown = await editor.blocksToMarkdownLossy(editor.document);
-    setMarkdown(markdown);
+  const handleAiOperation = async (selectedOperation: Command) => {
+    setOperation(selectedOperation);
+    await processContent({onlySelected: true});
   };
 
   // Renders the editor instance using a React component.
   return (
     <div className="flex flex-col gap-4">
-      <BlockNoteView theme='light' editor={editor} onChange={onChange} className="h-[50vh] overflow-y-scroll border border-gray-300 rounded-sm p-4" />
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
+      <BlockNoteView 
+        theme='light' 
+        editor={editor} 
+        className="h-[50vh] overflow-y-scroll border border-gray-300 rounded-sm p-4" 
+        formattingToolbar={false}>
+        <FormattingToolbarController
+        formattingToolbar={() => (
+          <FormattingToolbar>
+            <BlockTypeSelect key={"blockTypeSelect"} />
+
+            <AiDropdown onSelect={handleAiOperation} />
+
+            <FileCaptionButton key={"fileCaptionButton"} />
+            <FileReplaceButton key={"replaceFileButton"} />
+
+            <BasicTextStyleButton
+              basicTextStyle={"bold"}
+              key={"boldStyleButton"}
+            />
+            <BasicTextStyleButton
+              basicTextStyle={"italic"}
+              key={"italicStyleButton"}
+            />
+            <BasicTextStyleButton
+              basicTextStyle={"underline"}
+              key={"underlineStyleButton"}
+            />
+            <BasicTextStyleButton
+              basicTextStyle={"strike"}
+              key={"strikeStyleButton"}
+            />
+            {/* Extra button to toggle code styles */}
+            <BasicTextStyleButton
+              key={"codeStyleButton"}
+              basicTextStyle={"code"}
+            />
+
+            <TextAlignButton
+              textAlignment={"left"}
+              key={"textAlignLeftButton"}
+            />
+            <TextAlignButton
+              textAlignment={"center"}
+              key={"textAlignCenterButton"}
+            />
+            <TextAlignButton
+              textAlignment={"right"}
+              key={"textAlignRightButton"}
+            />
+
+            <ColorStyleButton key={"colorStyleButton"} />
+
+            <NestBlockButton key={"nestBlockButton"} />
+            <UnnestBlockButton key={"unnestBlockButton"} />
+
+            <CreateLinkButton key={"createLinkButton"} />
+          </FormattingToolbar>
+        )}
+        />
+      </BlockNoteView>
       <div className="flex justify-end items-center gap-2">
-        <Select value={operation} onValueChange={setOperation}>
+        <Select value={operation} onValueChange={(value: Command) => setOperation(value)}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Select operation" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Paraphrase">Paraphrase</SelectItem>
-            <SelectItem value="Summarize">Summarize</SelectItem>
-            <SelectItem value="Expand">Expand</SelectItem>
+            <SelectItem value="paraphrase">Paraphrase</SelectItem>
+            <SelectItem value="summarize">Summarize</SelectItem>
+            <SelectItem value="expand">Expand</SelectItem>
           </SelectContent>
         </Select>
-        <Button onClick={handleAskAI} disabled={loading}>
+        <Button onClick={() => processContent()} disabled={loading}>
           {loading ? 'Processing...' : 'Ask AI'}
         </Button>
       </div>
