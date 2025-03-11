@@ -1,3 +1,0 @@
-[alias]
-db = ["run", "--package", "backend-cli", "--bin", "db", "--"]
-generate = ["run", "--package", "backend-cli", "--bin", "generate", "--"]

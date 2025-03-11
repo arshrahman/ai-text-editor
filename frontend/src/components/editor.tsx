@@ -18,20 +18,20 @@ export default function Editor() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote();
   const [markdown, setMarkdown] = useState<string>("");
-  const [operation, setOperation] = useState("summarize");
+  const [operation, setOperation] = useState("Summarize");
   const [loading, setLoading] = useState(false);
 
   const handleAskAI = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3000/api/ai', {
+      const response = await fetch('http://127.0.0.1:7878/ai/action', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          text: markdown,
-          operation: operation,
+          content: markdown,
+          command: operation,
         }),
       });
 
@@ -61,16 +61,16 @@ export default function Editor() {
   // Renders the editor instance using a React component.
   return (
     <div className="flex flex-col gap-4">
-      <BlockNoteView theme='light' editor={editor} onChange={onChange} className="h-[50vh] border border-gray-300 rounded-sm p-4" />
+      <BlockNoteView theme='light' editor={editor} onChange={onChange} className="h-[50vh] overflow-y-scroll border border-gray-300 rounded-sm p-4" />
       <div className="flex justify-end items-center gap-2">
         <Select value={operation} onValueChange={setOperation}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Select operation" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="paraphrase">Paraphrase</SelectItem>
-            <SelectItem value="summarize">Summarize</SelectItem>
-            <SelectItem value="expand">Expand</SelectItem>
+            <SelectItem value="Paraphrase">Paraphrase</SelectItem>
+            <SelectItem value="Summarize">Summarize</SelectItem>
+            <SelectItem value="Expand">Expand</SelectItem>
           </SelectContent>
         </Select>
         <Button onClick={handleAskAI} disabled={loading}>

@@ -1,10 +1,18 @@
-[workspace]
-members = [
-    "cli",
-    "config",
-    "db",
-    "web",
-    "macros"
-]
-resolver = "2"
-default-members = ["web"]
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = "0.8.1"
+tokio = { version = "1.44.0", features = ["full"] }
+
+#serde
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = {version = "1.0.140"}
+
+#env
+dotenvy = "0.15.7"
+reqwest = { version = "0.12", features = ["json"] }
+
+tower-http = { version = "0.6.2", features = ["cors", "trace"] }

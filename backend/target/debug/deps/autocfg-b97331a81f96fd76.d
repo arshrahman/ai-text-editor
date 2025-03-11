@@ -1,0 +1,10 @@
+/Users/abdrahman/Development/ai/senior-full-stack-engineer-ai-work-sample-1652cfac3fa04664a062cffd6847057d/backend/target/debug/deps/libautocfg-b97331a81f96fd76.rmeta: /Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/lib.rs /Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/error.rs /Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/rustc.rs /Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/version.rs
+
+/Users/abdrahman/Development/ai/senior-full-stack-engineer-ai-work-sample-1652cfac3fa04664a062cffd6847057d/backend/target/debug/deps/libautocfg-b97331a81f96fd76.rlib: /Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/lib.rs /Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/error.rs /Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/rustc.rs /Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/version.rs
+
+/Users/abdrahman/Development/ai/senior-full-stack-engineer-ai-work-sample-1652cfac3fa04664a062cffd6847057d/backend/target/debug/deps/autocfg-b97331a81f96fd76.d: /Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/lib.rs /Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/error.rs /Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/rustc.rs /Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/version.rs
+
+/Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/lib.rs:
+/Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/error.rs:
+/Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/rustc.rs:
+/Users/abdrahman/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/version.rs:
